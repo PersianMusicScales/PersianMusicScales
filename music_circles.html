@@ -1,263 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Music Circles</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      background-color: #f4f4f4;
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .title {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      margin: 10px 0;
-      color: #333;
-    }
-    .main-content {
-      display: flex;
-      flex-grow: 1;
-      width: 100%;
-    }
-    .menu {
-      width: 200px;
-      background-color: #eee;
-      padding: 10px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      height: 100%;
-      box-sizing: border-box;
-    }
-    .menu h3 {
-      margin: 0 0 10px;
-      text-align: center;
-    }
-    .menu button {
-      display: block;
-      width: 100%;
-      margin: 5px 0;
-      padding: 10px;
-      font-size: 16px;
-      border: none;
-      background-color: #ddd;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .menu button:hover {
-      background-color: #ccc;
-    }
-    .container {
-      flex-grow: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-    .outer-circle {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 50%;
-    }
-    .alignment-marker {
-      position: absolute;
-      top: 110px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 10px;
-      height: 10px;
-      background-color: red;
-      border-radius: 50%;
-      border: 2px solid white;
-      z-index: 10;
-    }
-    .marker-label {
-      position: absolute;
-      top: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 12px;
-      font-weight: bold;
-      color: #333;
-      text-align: center;
-    }
-    .inner-circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 200px;
-      height: 200px;
-      background: url('inner-circle.png') no-repeat center/cover;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-    }
-    .footer {
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      margin: 10px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Labels for Shur Scale</title>
+    <style>
+        :root {
+            --chart-size: 300px;
+            --line-width: 2px;
+            --line-length: calc(var(--chart-size) / 2);
+            --shur-scale-size: calc(var(--chart-size) * 1.3);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            position: relative;
+            width: var(--shur-scale-size);
+            height: var(--shur-scale-size);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .shur-scale {
+            position: absolute;
+            width: var(--shur-scale-size);
+            height: var(--shur-scale-size);
+            background: conic-gradient(
+                pink 0deg 45deg,
+                pink 45deg 90deg,
+                gray 90deg 150deg,
+                gray 150deg 210deg,
+                pink 210deg 255deg,
+                pink 255deg 300deg,
+                gray 300deg 360deg
+            );
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .line-shur {
+            position: absolute;
+            width: var(--line-width);
+            height: calc(var(--shur-scale-size) / 2);
+            background-color: white;
+            transform-origin: bottom center;
+            top: 0;
+            left: 50%;
+            z-index: 2;
+        }
+
+        .label-shur {
+            position: absolute;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+        }
+
+        .white-circle {
+            position: absolute;
+            width: var(--chart-size);
+            height: var(--chart-size);
+            background-color: white;
+            border-radius: 50%;
+            z-index: 3;
+        }
+
+        .diatonic-scale {
+            position: absolute;
+            width: var(--chart-size);
+            height: var(--chart-size);
+            border-radius: 50%;
+            background: conic-gradient(
+                gray 0 120deg, 
+                black 120deg 150deg, 
+                gray 150deg 330deg, 
+                black 330deg 360deg
+            );
+            z-index: 4;
+        }
+
+        .line-diatonic {
+            position: absolute;
+            width: var(--line-width);
+            height: var(--line-length);
+            background-color: white;
+            transform-origin: bottom center;
+            top: 0;
+            left: 50%;
+            z-index: 5;
+        }
+
+        .label {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+    </style>
 </head>
 <body>
-  <div class="title" id="scaleTitle">Shur</div>
-  
-  <div class="main-content">
-    <div class="menu">
-      <h3>Persian Music Scales</h3>
-      <button data-circle="Shur">Shur</button>
-      <button data-circle="Nava">Nava</button>
-      <button data-circle="Segah">Segah</button>
-      <button data-circle="Homayoun">Homayoun</button>
-      <button data-circle="Esfahan">Esfahan</button>
-      <button data-circle="Chahargah">Chahargah</button>
-      <button data-circle="Mahur">Mahur</button>
-    </div>
-
     <div class="container">
-      <div class="outer-circle" id="outerCircle" style="background: url('Shur.png') no-repeat center/cover;"></div>
-      <div class="alignment-marker"></div>
-      <div class="marker-label">Align Here</div>
-      <div class="inner-circle" id="innerCircle"></div>
+        <div class="shur-scale"></div>
+        <div class="white-circle"></div>
+        <div class="diatonic-scale"></div>
     </div>
-  </div>
 
-  <div class="footer">
-    &copy; 2024 Pouya Hosseini. All rights reserved.
-  </div>
+    <script>
+        const container = document.querySelector('.container');
+        const shurScale = document.querySelector('.shur-scale');
+        const diatonicScale = document.querySelector('.diatonic-scale');
+        let rotation = 0;
 
-  <script>
-    const innerCircle = document.getElementById("innerCircle");
-    const outerCircle = document.getElementById("outerCircle");
-    const scaleTitle = document.getElementById("scaleTitle");
-    const buttons = document.querySelectorAll(".menu button");
-    const outerLabels = ["Do", "Re", "Mi", "Fa", "Sol", "La", "Si"]; // Labels for outer circle
-    const labelElements = []; // For dynamically adding labels to the outer circle
+        const shurAngles = [0, 45, 90, 150, 210, 255, 300];
+        const shurLabels = [];
+        const diatonicAngles = [0, 60, 120, 150, 210, 270, 330];
+        const labels = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
 
-    let isDragging = false;
-    let startAngle = 0;
-    let currentRotation = 0;
-    let targetRotation = 0;
-    const snapThreshold = 10 * (Math.PI / 180); // 10 degrees in radians
+        shurAngles.forEach(angle => {
+            const line = document.createElement('div');
+            line.classList.add('line-shur');
+            line.style.transform = `rotate(${angle}deg)`;
+            shurScale.appendChild(line);
 
-    // Calculate the rotation angle of an element
-    function calculateAngle(clientX, clientY, rect) {
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      return Math.atan2(clientY - centerY, clientX - centerX);
-    }
+            const labelDiv = document.createElement('div');
+            labelDiv.classList.add('label-shur');
+            shurScale.appendChild(labelDiv);
+            shurLabels.push({ angle, labelDiv });
+        });
 
-    // Snap rotation to the closest alignment if within threshold
-    function snapToAlignment(rotation) {
-      const segmentAngle = (2 * Math.PI) / outerLabels.length; // Angle between labels
-      const remainder = rotation % segmentAngle;
-      if (Math.abs(remainder) < snapThreshold || Math.abs(remainder - segmentAngle) < snapThreshold) {
-        return Math.round(rotation / segmentAngle) * segmentAngle;
-      }
-      return rotation;
-    }
+        diatonicAngles.forEach((angle, index) => {
+            const line = document.createElement('div');
+            line.classList.add('line-diatonic');
+            line.style.transform = `rotate(${angle}deg)`;
+            diatonicScale.appendChild(line);
 
-    // Smoothly transition to the target rotation
-    function animateRotation() {
-      if (Math.abs(currentRotation - targetRotation) < 0.001) {
-        currentRotation = targetRotation; // Snap to final position if close
-        return;
-      }
+            const labelDiv = document.createElement('div');
+            labelDiv.classList.add('label');
+            labelDiv.textContent = labels[index];
+            const radians = (angle - 90) * (Math.PI / 180);
+            labelDiv.style.top = `${50 + 60 * Math.sin(radians)}%`;
+            labelDiv.style.left = `${50 + 60 * Math.cos(radians)}%`;
+            diatonicScale.appendChild(labelDiv);
+        });
 
-      currentRotation += (targetRotation - currentRotation) * 0.1; // Ease rotation
-      innerCircle.style.transform = `translate(-50%, -50%) rotate(${currentRotation}rad)`;
+        function normalizeAngle(angle) {
+            return (angle + 360) % 360;
+        }
 
-      // Detect alignment and update labels
-      const alignedIndex = Math.round(currentRotation / ((2 * Math.PI) / outerLabels.length)) % outerLabels.length;
-      updateOuterLabels((outerLabels.length - alignedIndex) % outerLabels.length);
+        function findClosestLabel(angle) {
+            const normalizedAngle = normalizeAngle(angle);
+            const rotatedAngles = diatonicAngles.map(a => normalizeAngle(a + rotation));
 
-      requestAnimationFrame(animateRotation);
-    }
+            let closestLabel = '';
+            let closestDifference = 360;
 
-    // Update outer circle labels
-    function updateOuterLabels(startLabelIndex) {
-      const outerRadius = 200; // Outer circle radius
-      const labelRadius = outerRadius + 20; // Distance from circle center for labels
-      const centerX = outerCircle.offsetWidth / 2;
-      const centerY = outerCircle.offsetHeight / 2;
+            rotatedAngles.forEach((diatonicAngle, index) => {
+                let difference = normalizedAngle - diatonicAngle;
+                difference = normalizeAngle(difference);
 
-      // Clear existing labels
-      labelElements.forEach((el) => el.remove());
-      labelElements.length = 0;
+                if (difference > 180) {
+                    difference -= 360; // Normalize to -180 to 180
+                }
 
-      // Add labels dynamically
-      for (let i = 0; i < outerLabels.length; i++) {
-        const angle = (i * 2 * Math.PI) / outerLabels.length - Math.PI / 2;
-        const x = centerX + labelRadius * Math.cos(angle);
-        const y = centerY + labelRadius * Math.sin(angle);
+                // Prioritize clockwise difference when equidistant
+                if (
+                    Math.abs(difference) < Math.abs(closestDifference) ||
+                    (Math.abs(difference) === Math.abs(closestDifference) && difference < 0)
+                ) {
+                    closestDifference = difference;
+                    closestLabel = labels[index];
+                }
+            });
 
-        const label = document.createElement("div");
-        label.style.position = "absolute";
-        label.style.left = `${x}px`;
-        label.style.top = `${y}px`;
-        label.style.transform = "translate(-50%, -50%)";
-        label.style.fontSize = "14px";
-        label.style.fontWeight = "bold";
-        label.style.color = "#333";
-        label.textContent = outerLabels[(startLabelIndex + i) % outerLabels.length];
-        outerCircle.appendChild(label);
-        labelElements.push(label);
-      }
-    }
+            // Append modifiers based on angle difference
+            if (closestDifference === -15) {
+                return `${closestLabel} Koron`;
+            } else if (closestDifference === 15) {
+                return `${closestLabel} Sori`;
+            } else if (closestDifference === -30) {
+                return `${closestLabel}<sup>b</sup>`;
+            } else if (closestDifference === 30) {
+                return `${closestLabel}<sup>#</sup>`;
+            }
 
-    // Event: Start dragging
-    innerCircle.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      const rect = innerCircle.getBoundingClientRect();
-      startAngle = calculateAngle(e.clientX, e.clientY, rect);
-      currentRotation = parseFloat(innerCircle.dataset.rotation) || 0;
-      targetRotation = currentRotation;
-    });
+            return closestLabel;
+        }
 
-    // Event: Dragging
-    window.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
+        function updateShurLabels() {
+            shurLabels.forEach(({ angle, labelDiv }) => {
+                const label = findClosestLabel(angle);
+                const radians = (angle - 90) * (Math.PI / 180);
+                labelDiv.innerHTML = label; // Use innerHTML to handle superscripts
+                labelDiv.style.top = `${50 + 70 * Math.sin(radians)}%`;
+                labelDiv.style.left = `${50 + 70 * Math.cos(radians)}%`;
+            });
+        }
 
-      const rect = innerCircle.getBoundingClientRect();
-      const currentAngle = calculateAngle(e.clientX, e.clientY, rect);
-      targetRotation = currentRotation + currentAngle - startAngle;
+        updateShurLabels();
 
-      targetRotation = snapToAlignment(targetRotation); // Snap if close to alignment
-      innerCircle.dataset.rotation = targetRotation;
+        container.addEventListener('click', (event) => {
+            const rect = container.getBoundingClientRect();
+            const clickX = event.clientX - rect.left - rect.width / 2;
 
-      animateRotation();
-    });
+            if (clickX >= 0) {
+                rotation += 15;
+            } else {
+                rotation -= 15;
+            }
 
-    // Event: Stop dragging
-    window.addEventListener("mouseup", () => {
-      isDragging = false;
-    });
+            diatonicScale.style.transform = `rotate(${rotation}deg)`;
+            updateShurLabels();
+        });
 
-    // Event: Change outer circle
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const circleName = button.dataset.circle;
-        outerCircle.style.background = `url('${circleName}.png') no-repeat center/cover`;
-        scaleTitle.textContent = circleName; // Update title
-        updateOuterLabels(0); // Reset labels
-      });
-    });
+        let isDragging = false;
+        let startAngle = 0;
 
-    // Initial label setup
-    updateOuterLabels(0);
-  </script>
+        const getAngle = (x, y) => Math.atan2(y, x) * (180 / Math.PI);
+
+        container.addEventListener('mousedown', (event) => {
+            isDragging = true;
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const startX = event.clientX - centerX;
+            const startY = event.clientY - centerY;
+            startAngle = getAngle(startX, startY) - rotation;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const currentX = event.clientX - centerX;
+                const currentY = event.clientY - centerY;
+                rotation = getAngle(currentX, currentY) - startAngle;
+                diatonicScale.style.transform = `rotate(${rotation}deg)`;
+                updateShurLabels();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                rotation = Math.round(rotation / 15) * 15;
+                diatonicScale.style.transform = `rotate(${rotation}deg)`;
+                updateShurLabels();
+            }
+        });
+    </script>
 </body>
 </html>
