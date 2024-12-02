@@ -1,4 +1,4 @@
-# Interactive Music Circles
+# Persian Music Scales
 
 © 2024 Pouya Hosseini. All rights reserved.
 
