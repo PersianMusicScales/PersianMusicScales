@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Labels for Segah Scale</title>
+    <style>
+        :root {
+            --chart-size: 300px;
+            --line-width: 2px;
+            --line-length: calc(var(--chart-size) / 2);
+            --segah-scale-size: calc(var(--chart-size) * 1.5);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            position: relative;
+            width: var(--segah-scale-size);
+            height: var(--segah-scale-size);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .segah-scale {
+            position: absolute;
+            width: var(--segah-scale-size);
+            height: var(--segah-scale-size);
+            background: conic-gradient(
+                pink 0deg 45deg,
+                gray 45deg 105deg,
+                pink 105deg 150deg,
+                pink 150deg 195deg,
+                gray 195deg 255deg,
+                gray 255deg 315deg,
+                pink 315deg 360deg
+            );
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .line-segah {
+            position: absolute;
+            width: var(--line-width);
+            height: calc(var(--segah-scale-size) / 2);
+            background-color: white;
+            transform-origin: bottom center;
+            top: 0;
+            left: 50%;
+            z-index: 2;
+        }
+
+        .label-segah {
+            position: absolute;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+        }
+
+        .white-circle {
+            position: absolute;
+            width: var(--chart-size);
+            height: var(--chart-size);
+            background-color: white;
+            border-radius: 50%;
+            z-index: 3;
+        }
+
+        .diatonic-scale {
+            position: absolute;
+            width: var(--chart-size);
+            height: var(--chart-size);
+            border-radius: 50%;
+            background: conic-gradient(
+                gray 0 120deg, 
+                black 120deg 150deg, 
+                gray 150deg 330deg, 
+                black 330deg 360deg
+            );
+            z-index: 4;
+        }
+
+        .line-diatonic {
+            position: absolute;
+            width: var(--line-width);
+            height: var(--line-length);
+            background-color: white;
+            transform-origin: bottom center;
+            top: 0;
+            left: 50%;
+            z-index: 5;
+        }
+
+        .label {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        footer {
+            margin-top: 60px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="segah-scale"></div>
+        <div class="white-circle"></div>
+        <div class="diatonic-scale"></div>
+    </div>
+    <footer>
+        Copyright © 2024 Pouya Hosseini
+    </footer>
+    <script>
+        const container = document.querySelector('.container');
+        const segahScale = document.querySelector('.segah-scale');
+        const diatonicScale = document.querySelector('.diatonic-scale');
+        let rotation = 0;
+
+        const segahAngles = [0, 45, 105, 150, 195, 255, 315];
+        const segahLabels = [];
+        const diatonicAngles = [0, 60, 120, 150, 210, 270, 330];
+        const labels = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+
+        segahAngles.forEach(angle => {
+            const line = document.createElement('div');
+            line.classList.add('line-segah');
+            line.style.transform = `rotate(${angle}deg)`;
+            segahScale.appendChild(line);
+
+            const labelDiv = document.createElement('div');
+            labelDiv.classList.add('label-segah');
+            segahScale.appendChild(labelDiv);
+            segahLabels.push({ angle, labelDiv });
+        });
+
+        diatonicAngles.forEach((angle, index) => {
+            const line = document.createElement('div');
+            line.classList.add('line-diatonic');
+            line.style.transform = `rotate(${angle}deg)`;
+            diatonicScale.appendChild(line);
+
+            const labelDiv = document.createElement('div');
+            labelDiv.classList.add('label');
+            labelDiv.textContent = labels[index];
+            const radians = (angle - 90) * (Math.PI / 180);
+            labelDiv.style.top = `${50 + 60 * Math.sin(radians)}%`;
+            labelDiv.style.left = `${50 + 60 * Math.cos(radians)}%`;
+            diatonicScale.appendChild(labelDiv);
+        });
+
+        function normalizeAngle(angle) {
+            return (angle + 360) % 360;
+        }
+
+        function findClosestLabel(angle) {
+            const normalizedAngle = normalizeAngle(angle);
+            const rotatedAngles = diatonicAngles.map(a => normalizeAngle(a + rotation));
+
+            let closestLabel = '';
+            let closestDifference = 360;
+
+            rotatedAngles.forEach((diatonicAngle, index) => {
+                let difference = normalizedAngle - diatonicAngle;
+                difference = normalizeAngle(difference);
+
+                if (difference > 180) {
+                    difference -= 360;
+                }
+
+                if (
+                    Math.abs(difference) < Math.abs(closestDifference) ||
+                    (Math.abs(difference) === Math.abs(closestDifference) && difference < 0)
+                ) {
+                    closestDifference = difference;
+                    closestLabel = labels[index];
+                }
+            });
+
+            if (closestDifference === -15) {
+                return `${closestLabel} Koron`;
+            } else if (closestDifference === 15) {
+                return `${closestLabel} Sori`;
+            } else if (closestDifference === -30) {
+                return `${closestLabel}<sup>b</sup>`;
+            } else if (closestDifference === 30) {
+                return `${closestLabel}<sup>#</sup>`;
+            }
+
+            return closestLabel;
+        }
+
+        function updateSegahLabels() {
+            segahLabels.forEach(({ angle, labelDiv }) => {
+                const label = findClosestLabel(angle);
+                const radians = (angle - 90) * (Math.PI / 180);
+                labelDiv.innerHTML = label;
+                labelDiv.style.top = `${50 + 70 * Math.sin(radians)}%`;
+                labelDiv.style.left = `${50 + 70 * Math.cos(radians)}%`;
+            });
+        }
+
+        updateSegahLabels();
+
+        container.addEventListener('click', (event) => {
+            const rect = container.getBoundingClientRect();
+            const clickX = event.clientX - rect.left - rect.width / 2;
+
+            if (clickX >= 0) {
+                rotation += 15;
+            } else {
+                rotation -= 15;
+            }
+
+            diatonicScale.style.transform = `rotate(${rotation}deg)`;
+            updateSegahLabels();
+        });
+
+        let isDragging = false;
+        let startAngle = 0;
+
+        const getAngle = (x, y) => Math.atan2(y, x) * (180 / Math.PI);
+
+        container.addEventListener('mousedown', (event) => {
+            isDragging = true;
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const startX = event.clientX - centerX;
+            const startY = event.clientY - centerY;
+            startAngle = getAngle(startX, startY) - rotation;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const currentX = event.clientX - centerX;
+                const currentY = event.clientY - centerY;
+                rotation = getAngle(currentX, currentY) - startAngle;
+                diatonicScale.style.transform = `rotate(${rotation}deg)`;
+                updateSegahLabels();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                rotation = Math.round(rotation / 15) * 15;
+                diatonicScale.style.transform = `rotate(${rotation}deg)`;
+                updateSegahLabels();
+            }
+        });
+    </script>
+</body>
+</html>
